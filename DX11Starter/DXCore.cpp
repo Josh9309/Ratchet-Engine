@@ -316,7 +316,7 @@ void DXCore::OnResize()
 	ID3D11Texture2D* depthBufferTexture;
 	device->CreateTexture2D(&depthStencilDesc, 0, &depthBufferTexture);
 	device->CreateDepthStencilView(depthBufferTexture, 0, &depthStencilView);
-	if (depthBufferTexture) { depthBufferTexture->Release(); }
+	depthBufferTexture->Release();
 
 	// Bind the views to the pipeline, so rendering properly 
 	// uses their underlying textures
@@ -535,6 +535,9 @@ LRESULT DXCore::ProcessMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 	// Sent when the window size changes
 	case WM_SIZE:
+		if (wParam == SIZE_MINIMIZED) //handles if the window was minimized
+			return 0;
+
 		// Save the new client area dimensions.
 		width = LOWORD(lParam);
 		height = HIWORD(lParam);
