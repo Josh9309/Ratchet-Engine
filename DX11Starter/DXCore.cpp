@@ -316,7 +316,7 @@ void DXCore::OnResize()
 	ID3D11Texture2D* depthBufferTexture;
 	device->CreateTexture2D(&depthStencilDesc, 0, &depthBufferTexture);
 	device->CreateDepthStencilView(depthBufferTexture, 0, &depthStencilView);
-	depthBufferTexture->Release();
+	if (depthBufferTexture) { depthBufferTexture->Release(); }
 
 	// Bind the views to the pipeline, so rendering properly 
 	// uses their underlying textures
