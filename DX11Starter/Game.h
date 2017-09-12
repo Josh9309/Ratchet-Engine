@@ -3,6 +3,7 @@
 #include "DXCore.h"
 #include "SimpleShader.h"
 #include "Mesh.h"
+#include "GameObject.h"
 #include <DirectXMath.h>
 
 class Game 
@@ -30,6 +31,7 @@ private:
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadShaders(); 
 	void CreateMatrices();
+	void CreateBasicGameObjects();
 	void CreateBasicGeometry();
 
 	// Wrappers for DirectX shaders to provide simplified functionality
@@ -49,5 +51,8 @@ private:
 	Mesh* triangle;
 	Mesh* square;
 	Mesh* pentagon;
+
+	GameObject* objArray[8];
+
 };
 
