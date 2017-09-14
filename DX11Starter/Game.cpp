@@ -144,6 +144,8 @@ void Game::CreateBasicGameObjects()
 	//make Triangle Game Objects
 	for (int i = 0; i < 3; i++) {
 		objArray[i] = new GameObject(triangle);
+		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+		objArray[i]->GetTransform()->SetPosition(XMFLOAT3(-2.5f, 0.0f, 0.0f));
 		//GameObject tri(triangle);
 		//memcpy(objArray + i, &tri, sizeof(GameObject));
 	}
@@ -151,6 +153,8 @@ void Game::CreateBasicGameObjects()
 	////Make Square GameObjects
 	for (int i = 3; i < 6; i++) {
 		objArray[i] = new GameObject(square);
+		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+		objArray[i]->GetTransform()->SetPosition(XMFLOAT3(+2.7f, 0.0f, 0.0f));
 	}
 
 	////Make Pentagon GameObjects
@@ -177,9 +181,9 @@ void Game::CreateBasicGeometry()
 	//Set up vertices for Triangle
 	Vertex triangleVertices[] =
 	{
-		{ XMFLOAT3(-2.5f, +0.5f, +0.0f), red },
-		{ XMFLOAT3(-1.5f, -0.5f, +0.0f), blue },
-		{ XMFLOAT3(-3.5f, -0.5f, +0.0f), green },
+		{ XMFLOAT3(+0.0f, +1.0f, +0.0f), red },
+		{ XMFLOAT3(+1.5f, -1.0f, +0.0f), blue },
+		{ XMFLOAT3(-1.5f, -1.0f, +0.0f), green },
 	};
 
 	//Set up Indices for Triangle
@@ -191,10 +195,10 @@ void Game::CreateBasicGeometry()
 	//Setup vertices for square
 	Vertex squareVertices[] =
 	{
-		{XMFLOAT3(+1.5f, +1.0f, +0.0f), red},
-		{ XMFLOAT3(+3.5f, +1.0f, +0.0f), blue },
-		{ XMFLOAT3(+3.5f, -1.0f, +0.0f), green },
-		{ XMFLOAT3(+1.5f, -1.0f, +0.0f), purple },
+		{XMFLOAT3(-1.0f, +1.0f, +0.0f), red},
+		{ XMFLOAT3(+1.0f, +1.0f, +0.0f), blue },
+		{ XMFLOAT3(+1.0f, -1.0f, +0.0f), green },
+		{ XMFLOAT3(-1.0f, -1.0f, +0.0f), purple },
 	};
 
 	//setup indices for square
@@ -251,6 +255,13 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
 
+	//objArray[2]->GetTransform()->SetPosition(XMFLOAT3(-2.0f, 0, 0));
+	objArray[0]->Move(XMFLOAT3(0, -.1f*deltaTime, 0));
+	objArray[1]->Move(XMFLOAT3(0, .1f*deltaTime, 0));
+	objArray[2]->Rotate(XMFLOAT3(0, 0, .5f*deltaTime));
+	objArray[3]->Move(XMFLOAT3(0, -0.1f*deltaTime, 0));
+	objArray[4]->Move(XMFLOAT3(0, 0.1f*deltaTime, 0));
+	objArray[5]->Rotate(XMFLOAT3(0, 0, -0.5f*deltaTime));
 	objArray[7]->Scale(XMFLOAT3(.01f*deltaTime, 0.01f*deltaTime, 0.01f*deltaTime));
 	objArray[6]->Rotate(XMFLOAT3(0.50f*deltaTime, .50f*deltaTime, 0.0f*deltaTime)); //rotates pentagon Hopefully
 }

@@ -16,7 +16,8 @@ public:
 	void SetWorldMatrix(DirectX::XMFLOAT4X4 matrix);
 
 	Mesh* GetMesh();
-	
+	Transform* GetTransform();
+
 	//Transform Methods
 	void Move(DirectX::XMFLOAT3 moveAmount);
 	void Rotate(DirectX::XMFLOAT3 rotateAmount);

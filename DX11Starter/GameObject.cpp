@@ -47,6 +47,11 @@ Mesh * GameObject::GetMesh()
 	return objMesh;
 }
 
+Transform * GameObject::GetTransform()
+{
+	return transform;
+}
+
 void GameObject::SetWorldMatrix(DirectX::XMFLOAT4X4 matrix)
 {
 	worldMatrix = matrix;
@@ -72,6 +77,8 @@ void GameObject::Scale(XMFLOAT3 scaleAmount)
 
 void GameObject::Render(ID3D11DeviceContext * drawContext)
 {
+	CalcWorldMatrix();
+
 	///Create Vertex Buffer
 	// Set buffers in the input assembler
 	//  - Do this ONCE PER OBJECT you're drawing, since each object might
