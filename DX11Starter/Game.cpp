@@ -358,7 +358,9 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
-	gameCamera.RotateCamera(y - prevMousePos.y, x - prevMousePos.x);
+	float xDiff = (float)(x - prevMousePos.x);
+	float yDiff = (float)(y - prevMousePos.y);
+	gameCamera.RotateCamera(yDiff, xDiff);
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

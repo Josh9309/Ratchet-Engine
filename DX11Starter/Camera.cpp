@@ -100,9 +100,19 @@ void Camera::Update(float deltaTime)
 		right = XMVector3Normalize(right);
 		position += (right*speed)*deltaTime;
 	}
+	if (GetAsyncKeyState('Z') & 0x8000) 
+	{
+		//Move up
+		position += (upVector * speed)*deltaTime;
+	}
+	else if (GetAsyncKeyState('X') & 0x8000) 
+	{
+		//Move Down
+		position += (-upVector*speed)*deltaTime;
+	}
 }
 
-void Camera::CalcProjection(float width, float height)
+void Camera::CalcProjection(unsigned int width, unsigned int height)
 {
 	// Create the Projection matrix
 	// - This should match the window's aspect ratio, and also update anytime
