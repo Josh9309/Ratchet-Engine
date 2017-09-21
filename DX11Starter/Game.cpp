@@ -51,6 +51,10 @@ Game::~Game()
 	delete triangle;
 	delete square;
 	delete pentagon;
+
+	for (int i = 0; i < 8; i++) {
+		delete objArray[i];
+	}
 }
 
 // --------------------------------------------------------
@@ -70,6 +74,12 @@ void Game::Init()
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//Create Gameobjects
+	CreateBasicGameObjects();
+
+	gameCamera = Camera(XMFLOAT3(0,0, -5.0f),XMFLOAT3(0,0,0), 1.5, 0.5);
+	gameCamera.CalcProjection(width, height);
 }
 
 // --------------------------------------------------------
@@ -131,6 +141,32 @@ void Game::CreateMatrices()
 	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
 }
 
+void Game::CreateBasicGameObjects()
+{
+
+	//make Triangle Game Objects
+	for (int i = 0; i < 3; i++) {
+		objArray[i] = new GameObject(triangle);
+		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+		objArray[i]->GetTransform()->SetPosition(XMFLOAT3(-2.5f, 0.0f, 0.0f));
+		//GameObject tri(triangle);
+		//memcpy(objArray + i, &tri, sizeof(GameObject));
+	}
+
+	////Make Square GameObjects
+	for (int i = 3; i < 6; i++) {
+		objArray[i] = new GameObject(square);
+		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+		objArray[i]->GetTransform()->SetPosition(XMFLOAT3(+2.7f, 0.0f, 0.0f));
+	}
+
+	////Make Pentagon GameObjects
+	for (int i = 6; i < 8; i++) {
+		objArray[i] = new GameObject(pentagon);
+	}
+
+}
+
 
 // --------------------------------------------------------
 // Creates the geometry we're going to draw - a single triangle for now
@@ -148,9 +184,9 @@ void Game::CreateBasicGeometry()
 	//Set up vertices for Triangle
 	Vertex triangleVertices[] =
 	{
-		{ XMFLOAT3(-2.5f, +0.5f, +0.0f), red },
-		{ XMFLOAT3(-1.5f, -0.5f, +0.0f), blue },
-		{ XMFLOAT3(-3.5f, -0.5f, +0.0f), green },
+		{ XMFLOAT3(+0.0f, +1.0f, +0.0f), red },
+		{ XMFLOAT3(+1.5f, -1.0f, +0.0f), blue },
+		{ XMFLOAT3(-1.5f, -1.0f, +0.0f), green },
 	};
 
 	//Set up Indices for Triangle
@@ -162,10 +198,10 @@ void Game::CreateBasicGeometry()
 	//Setup vertices for square
 	Vertex squareVertices[] =
 	{
-		{XMFLOAT3(+1.5f, +1.0f, +0.0f), red},
-		{ XMFLOAT3(+3.5f, +1.0f, +0.0f), blue },
-		{ XMFLOAT3(+3.5f, -1.0f, +0.0f), green },
-		{ XMFLOAT3(+1.5f, -1.0f, +0.0f), purple },
+		{XMFLOAT3(-1.0f, +1.0f, +0.0f), red},
+		{ XMFLOAT3(+1.0f, +1.0f, +0.0f), blue },
+		{ XMFLOAT3(+1.0f, -1.0f, +0.0f), green },
+		{ XMFLOAT3(-1.0f, -1.0f, +0.0f), purple },
 	};
 
 	//setup indices for square
@@ -205,12 +241,7 @@ void Game::OnResize()
 	DXCore::OnResize();
 
 	// Update our projection matrix since the window size changed
-	XMMATRIX P = XMMatrixPerspectiveFovLH(
-		0.25f * 3.1415926535f,	// Field of View Angle
-		(float)width / height,	// Aspect ratio
-		0.1f,				  	// Near clip plane distance
-		100.0f);			  	// Far clip plane distance
-	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
+	gameCamera.CalcProjection(width, height);
 }
 
 // --------------------------------------------------------
@@ -221,6 +252,17 @@ void Game::Update(float deltaTime, float totalTime)
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
+
+	gameCamera.Update(deltaTime);
+	//objArray[2]->GetTransform()->SetPosition(XMFLOAT3(-2.0f, 0, 0));
+	objArray[0]->Move(XMFLOAT3(0, -.1f*deltaTime, 0));
+	objArray[1]->Move(XMFLOAT3(0, .1f*deltaTime, 0));
+	objArray[2]->Rotate(XMFLOAT3(0, 0, .5f*deltaTime));
+	objArray[3]->Move(XMFLOAT3(0, -0.1f*deltaTime, 0));
+	objArray[4]->Move(XMFLOAT3(0, 0.1f*deltaTime, 0));
+	objArray[5]->Rotate(XMFLOAT3(0, 0, -0.5f*deltaTime));
+	objArray[7]->Scale(XMFLOAT3(.01f*deltaTime, 0.01f*deltaTime, 0.01f*deltaTime));
+	objArray[6]->Rotate(XMFLOAT3(0.50f*deltaTime, .50f*deltaTime, 0.0f*deltaTime)); //rotates pentagon Hopefully
 }
 
 // --------------------------------------------------------
@@ -241,69 +283,32 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
-	// Send data to shader variables
-	//  - Do this ONCE PER OBJECT you're drawing
-	//  - This is actually a complex process of copying data to a local buffer
-	//    and then copying that entire buffer to the GPU.  
-	//  - The "SimpleShader" class handles all of that for you.
-	vertexShader->SetMatrix4x4("world", worldMatrix);
-	vertexShader->SetMatrix4x4("view", viewMatrix);
-	vertexShader->SetMatrix4x4("projection", projectionMatrix);
+	for (int i = 0; i < 8; i++) {
+		
+		// Send data to shader variables
+		//  - Do this ONCE PER OBJECT you're drawing
+		//  - This is actually a complex process of copying data to a local buffer
+		//    and then copying that entire buffer to the GPU.  
+		//  - The "SimpleShader" class handles all of that for you.
+		//Pass World Matrix to shader
+		vertexShader->SetMatrix4x4("world", objArray[i]->GetWorldMatrix());
+		vertexShader->SetMatrix4x4("view", gameCamera.GetViewMatrix());
+		vertexShader->SetMatrix4x4("projection", gameCamera.GetProjectionMatrix());
 
-	// Once you've set all of the data you care to change for
-	// the next draw call, you need to actually send it to the GPU
-	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
-	vertexShader->CopyAllBufferData();
+		// Once you've set all of the data you care to change for
+		// the next draw call, you need to actually send it to the GPU
+		//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
+		vertexShader->CopyAllBufferData();
 
-	// Set the vertex and pixel shaders to use for the next Draw() command
-	//  - These don't technically need to be set every frame...YET
-	//  - Once you start applying different shaders to different objects,
-	//    you'll need to swap the current shaders before each draw
-	vertexShader->SetShader();
-	pixelShader->SetShader();
-
-	// Set buffers in the input assembler
-	//  - Do this ONCE PER OBJECT you're drawing, since each object might
-	//    have different geometry.
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-	ID3D11Buffer* triVBuffer = triangle->GetVertexBuffer();
-	context->IASetVertexBuffers(0, 1, &triVBuffer, &stride, &offset);
-	context->IASetIndexBuffer(triangle->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-
-	// Finally do the actual drawing
-	//  - Do this ONCE PER OBJECT you intend to draw
-	//  - This will use all of the currently set DirectX "stuff" (shaders, buffers, etc)
-	//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
-	//     vertices in the currently set VERTEX BUFFER
-	context->DrawIndexed(
-		triangle->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
-		0,     // Offset to the first index we want to use
-		0);    // Offset to add to each index when looking up vertices
-
-	//Draw Square
-	UINT squareStride = sizeof(Vertex);
-	UINT squareOffset = 0;
-	ID3D11Buffer* squVBuffer = square->GetVertexBuffer();
-	context->IASetVertexBuffers(0, 1, &squVBuffer, &squareStride, &squareOffset);
-	context->IASetIndexBuffer(square->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-
-	context->DrawIndexed(
-		square->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
-		0,     // Offset to the first index we want to use
-		0);    // Offset to add to each index when looking up vertices
-
-	//Draw Pentagon
-	UINT pentaStride = sizeof(Vertex);
-	UINT pentaOffset = 0;
-	ID3D11Buffer* penVBuffer = pentagon->GetVertexBuffer();
-	context->IASetVertexBuffers(0, 1, &penVBuffer, &pentaStride, &pentaOffset);
-	context->IASetIndexBuffer(pentagon->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-
-	context->DrawIndexed(
-		pentagon->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
-		0,     // Offset to the first index we want to use
-		0);    // Offset to add to each index when looking up vertices
+		// Set the vertex and pixel shaders to use for the next Draw() command
+		//  - These don't technically need to be set every frame...YET
+		//  - Once you start applying different shaders to different objects,
+		//    you'll need to swap the current shaders before each draw
+		vertexShader->SetShader();
+		pixelShader->SetShader();
+		
+		objArray[i]->Render(context);
+	}
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
@@ -353,6 +358,7 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
+	gameCamera.RotateCamera(y - prevMousePos.y, x - prevMousePos.x);
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

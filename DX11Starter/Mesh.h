@@ -1,5 +1,5 @@
 #pragma once
-#include <d3d11.h>		//included to gain acces to direct X Variables
+#include <d3d11.h>		//included to gain access to direct X Variables
 #include "Vertex.h"		//include to gain access to vertex struct
 
 class Mesh
