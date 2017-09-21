@@ -4,6 +4,7 @@
 #include "SimpleShader.h"
 #include "Mesh.h"
 #include "GameObject.h"
+#include "Camera.h"
 #include <DirectXMath.h>
 
 class Game 
@@ -54,5 +55,6 @@ private:
 
 	GameObject* objArray[8];
 
+	Camera gameCamera;
 };
 

@@ -77,6 +77,9 @@ void Game::Init()
 
 	//Create Gameobjects
 	CreateBasicGameObjects();
+
+	gameCamera = Camera(XMFLOAT3(0,0, -5.0f),XMFLOAT3(0,0,0), 1.5, 0.5);
+	gameCamera.CalcProjection(width, height);
 }
 
 // --------------------------------------------------------
@@ -238,12 +241,7 @@ void Game::OnResize()
 	DXCore::OnResize();
 
 	// Update our projection matrix since the window size changed
-	XMMATRIX P = XMMatrixPerspectiveFovLH(
-		0.25f * 3.1415926535f,	// Field of View Angle
-		(float)width / height,	// Aspect ratio
-		0.1f,				  	// Near clip plane distance
-		100.0f);			  	// Far clip plane distance
-	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
+	gameCamera.CalcProjection(width, height);
 }
 
 // --------------------------------------------------------
@@ -255,6 +253,7 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
 
+	gameCamera.Update(deltaTime);
 	//objArray[2]->GetTransform()->SetPosition(XMFLOAT3(-2.0f, 0, 0));
 	objArray[0]->Move(XMFLOAT3(0, -.1f*deltaTime, 0));
 	objArray[1]->Move(XMFLOAT3(0, .1f*deltaTime, 0));
@@ -293,8 +292,8 @@ void Game::Draw(float deltaTime, float totalTime)
 		//  - The "SimpleShader" class handles all of that for you.
 		//Pass World Matrix to shader
 		vertexShader->SetMatrix4x4("world", objArray[i]->GetWorldMatrix());
-		vertexShader->SetMatrix4x4("view", viewMatrix);
-		vertexShader->SetMatrix4x4("projection", projectionMatrix);
+		vertexShader->SetMatrix4x4("view", gameCamera.GetViewMatrix());
+		vertexShader->SetMatrix4x4("projection", gameCamera.GetProjectionMatrix());
 
 		// Once you've set all of the data you care to change for
 		// the next draw call, you need to actually send it to the GPU
@@ -359,6 +358,7 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
+	gameCamera.RotateCamera(y - prevMousePos.y, x - prevMousePos.x);
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
