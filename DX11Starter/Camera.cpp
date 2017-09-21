@@ -75,7 +75,7 @@ void Camera::Update(float deltaTime)
 
 	//KEYBOARD INPUT
 	XMVECTOR normForward = XMVector3Normalize(forward);	//Normalize forward vector for movement
-	if(GetAsyncKeyState('W')& 0x8000) //The 0x8000 is necessacry because the function contains muliple pieces of info in a short value
+	if(GetAsyncKeyState('W') & 0x8000) //The 0x8000 is necessacry because the function contains muliple pieces of info in a short value
 	{
 		//Move Forwards
 		
@@ -127,8 +127,8 @@ void Camera::CalcProjection(unsigned int width, unsigned int height)
 
 void Camera::RotateCamera(float xAmount, float yAmount)
 {
-	float xScaled = xAmount / 200;
-	float yScaled = yAmount / 200;
+	float xScaled = xAmount / 100;
+	float yScaled = yAmount / 100;
 	rotation.x += xScaled * rotSpeed;
 	rotation.y += yScaled * rotSpeed ;
 
@@ -136,16 +136,16 @@ void Camera::RotateCamera(float xAmount, float yAmount)
 	{
 		rotation.x = 360.0f;
 	}
-	else if (rotation.x < 0) {
-		rotation.x = 0.0f;
+	else if (rotation.x < -360) {
+		rotation.x = -360.0f;
 	}
 
 	if (rotation.y > 360)
 	{
 		rotation.y = 360.0f;
 	}
-	else if (rotation.y < 0) {
-		rotation.y = 0.0f;
+	else if (rotation.y < -360.0f) {
+		rotation.y = -360.0f;
 	}
 }
 

@@ -56,5 +56,7 @@ private:
 	GameObject* objArray[8];
 
 	Camera gameCamera;
+
+	bool freeLookEnabled = false;
 };
 
