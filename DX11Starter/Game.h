@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include <DirectXMath.h>
 #include "Material.h"
+#include "Light.h"
 
 class Game 
 	: public DXCore
@@ -68,6 +69,8 @@ private:
 
 	Camera gameCamera;
 
-	bool freeLookEnabled = false;
+	DirectionalLight directLight;
+
+	bool freeLookEnabled = false;	//tells whether freelook is enabled 
 };
 

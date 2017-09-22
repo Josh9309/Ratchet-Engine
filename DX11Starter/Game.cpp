@@ -92,6 +92,10 @@ void Game::Init()
 	//Creates game Camera
 	gameCamera = Camera(XMFLOAT3(0,0, -5.0f),XMFLOAT3(0,0,0), 1.5, 0.5);
 	gameCamera.CalcProjection(width, height);	//Makes sure projection matrix is calculated
+
+	//Create directional Light
+	directLight = { XMFLOAT4(0.1,0.1,0.1,1.0), XMFLOAT4(0,0,1,1), XMFLOAT3(1,-1,0) };
+
 }
 
 // --------------------------------------------------------
@@ -315,7 +319,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		
 		
 		objArray[i]->SetupMaterial(gameCamera.GetViewMatrix(), gameCamera.GetProjectionMatrix()); //sets up matrices in vshader and sets shaders to active
-		
+		objArray[i]->GetMaterial()->GetPShader()->SetData(
+			"light",	//Name of variable in shader
+			&directLight,
+			sizeof(DirectionalLight));
 		objArray[i]->Render(context); //renders object
 	}
 
