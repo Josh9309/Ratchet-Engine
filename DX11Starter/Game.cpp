@@ -191,9 +191,9 @@ void Game::CreateBasicGeometry()
 	//Set up vertices for Triangle
 	Vertex triangleVertices[] =
 	{
-		{ XMFLOAT3(+0.0f, +1.0f, +0.0f), red },
-		{ XMFLOAT3(+1.5f, -1.0f, +0.0f), blue },
-		{ XMFLOAT3(-1.5f, -1.0f, +0.0f), green },
+		{ XMFLOAT3(+0.0f, +1.0f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },  //position(float3), uv(float2), normal(float3)
+		{ XMFLOAT3(+1.5f, -1.0f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
+		{ XMFLOAT3(-1.5f, -1.0f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
 	};
 
 	//Set up Indices for Triangle
@@ -205,10 +205,10 @@ void Game::CreateBasicGeometry()
 	//Setup vertices for square
 	Vertex squareVertices[] =
 	{
-		{XMFLOAT3(-1.0f, +1.0f, +0.0f), red},
-		{ XMFLOAT3(+1.0f, +1.0f, +0.0f), blue },
-		{ XMFLOAT3(+1.0f, -1.0f, +0.0f), green },
-		{ XMFLOAT3(-1.0f, -1.0f, +0.0f), purple },
+		{XMFLOAT3(-1.0f, +1.0f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
+		{ XMFLOAT3(+1.0f, +1.0f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
+		{ XMFLOAT3(+1.0f, -1.0f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
+		{ XMFLOAT3(-1.0f, -1.0f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
 	};
 
 	//setup indices for square
@@ -220,11 +220,11 @@ void Game::CreateBasicGeometry()
 	//Setup Pentagon Vertices
 	Vertex pentagonVertices[] =
 	{
-		{ XMFLOAT3(+0.0f, +1.5f, +0.0f), red },
-		{ XMFLOAT3(+1.5f, +0.5f, +0.0f), blue },
-		{ XMFLOAT3(+1.0f, -1.0f, +0.0f), green },
-		{ XMFLOAT3(-1.0f, -1.0f, +0.0f), purple },
-		{ XMFLOAT3(-1.5f, +0.5f, +0.0f), yellow},
+		{ XMFLOAT3(+0.0f, +1.5f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
+		{ XMFLOAT3(+1.5f, +0.5f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
+		{ XMFLOAT3(+1.0f, -1.0f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
+		{ XMFLOAT3(-1.0f, -1.0f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
+		{ XMFLOAT3(-1.5f, +0.5f, +0.0f), XMFLOAT2(0,0), XMFLOAT3(0,0,-1) },
 	};
 
 	//Setup Indices for Pentagon
