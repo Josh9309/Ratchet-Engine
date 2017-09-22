@@ -75,7 +75,7 @@ void Camera::Update(float deltaTime)
 
 	//KEYBOARD INPUT
 	XMVECTOR normForward = XMVector3Normalize(forward);	//Normalize forward vector for movement
-	if(GetAsyncKeyState('W')& 0x8000) //The 0x8000 is necessacry because the function contains muliple pieces of info in a short value
+	if(GetAsyncKeyState('W') & 0x8000) //The 0x8000 is necessacry because the function contains muliple pieces of info in a short value
 	{
 		//Move Forwards
 		
@@ -100,9 +100,19 @@ void Camera::Update(float deltaTime)
 		right = XMVector3Normalize(right);
 		position += (right*speed)*deltaTime;
 	}
+	if (GetAsyncKeyState('Z') & 0x8000) 
+	{
+		//Move up
+		position += (upVector * speed)*deltaTime;
+	}
+	else if (GetAsyncKeyState('X') & 0x8000) 
+	{
+		//Move Down
+		position += (-upVector*speed)*deltaTime;
+	}
 }
 
-void Camera::CalcProjection(float width, float height)
+void Camera::CalcProjection(unsigned int width, unsigned int height)
 {
 	// Create the Projection matrix
 	// - This should match the window's aspect ratio, and also update anytime
@@ -117,8 +127,10 @@ void Camera::CalcProjection(float width, float height)
 
 void Camera::RotateCamera(float xAmount, float yAmount)
 {
-	float xScaled = xAmount / 200;
-	float yScaled = yAmount / 200;
+	//Scales pixel to radian ratio 100:1
+	float xScaled = xAmount / 100;
+	float yScaled = yAmount / 100;
+
 	rotation.x += xScaled * rotSpeed;
 	rotation.y += yScaled * rotSpeed ;
 
@@ -126,16 +138,16 @@ void Camera::RotateCamera(float xAmount, float yAmount)
 	{
 		rotation.x = 360.0f;
 	}
-	else if (rotation.x < 0) {
-		rotation.x = 0.0f;
+	else if (rotation.x < -360) {
+		rotation.x = -360.0f;
 	}
 
 	if (rotation.y > 360)
 	{
 		rotation.y = 360.0f;
 	}
-	else if (rotation.y < 0) {
-		rotation.y = 0.0f;
+	else if (rotation.y < -360.0f) {
+		rotation.y = -360.0f;
 	}
 }
 

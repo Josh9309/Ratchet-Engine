@@ -8,7 +8,7 @@ public:
 	Camera(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 rot, float moveSpeed, float rotationSpeed );
 	~Camera();
 	void Update(float deltaTime);
-	void CalcProjection(float width, float height);
+	void CalcProjection(unsigned int width, unsigned int height);
 	void RotateCamera(float xAmount, float yAmount);
 	//Getters
 	void GetPosition(DirectX::XMFLOAT3 * posStore);
