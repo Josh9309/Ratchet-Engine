@@ -49,6 +49,12 @@ Game::~Game()
 	delete triangle;
 	delete square;
 	delete pentagon;
+	delete cone;
+	delete cube;
+	delete cylinder;
+	delete helix;
+	delete sphere;
+	delete torus;
 
 	//delete Materials
 	delete genericMat;
@@ -71,7 +77,7 @@ void Game::Init()
 	LoadShaders();
 	CreateMatrices();
 	CreateBasicGeometry();
-
+	
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
@@ -79,9 +85,9 @@ void Game::Init()
 
 	//Create Material 
 	genericMat = new Material(vertexShader, pixelShader);
-
+	CreateModels();
 	//Create Gameobjects
-	CreateBasicGameObjects();
+	//CreateBasicGameObjects();
 
 	//Creates game Camera
 	gameCamera = Camera(XMFLOAT3(0,0, -5.0f),XMFLOAT3(0,0,0), 1.5, 0.5);
@@ -235,6 +241,21 @@ void Game::CreateBasicGeometry()
 	};
 
 	pentagon = new Mesh(pentagonVertices, 5, pentaIndices, 9, device);
+}
+
+void Game::CreateModels()
+{
+	cone = new Mesh("../../DX11Starter/Assets/Models/cone.obj", device);
+	cube = new Mesh("../../DX11Starter/Assets/Models/cube.obj", device);
+	cylinder = new Mesh("../../DX11Starter/Assets/Models/cylinder.obj", device);
+	helix = new Mesh("../../DX11Starter/Assets/Models/helix.obj", device);
+	sphere = new Mesh("../../DX11Starter/Assets/Models/sphere.obj", device);
+	torus = new Mesh("../../DX11Starter/Assets/Models/torus.obj", device);
+
+	for (int i = 0; i < 8; i++) {
+		objArray[i] = new GameObject(torus, genericMat);
+	}
+
 }
 
 

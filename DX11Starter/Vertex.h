@@ -12,6 +12,6 @@
 struct Vertex
 {
 	DirectX::XMFLOAT3 Position;	    // The position of the vertex
-	DirectX::XMFLOAT2 Uv;			// The uv of the vertex
-	DirectX::XMFLOAT3 Normals;		// The normals of the vertex
+	DirectX::XMFLOAT2 UV;			// The uv of the vertex
+	DirectX::XMFLOAT3 Normal;		// The normal of the vertex
 };

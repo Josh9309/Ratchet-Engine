@@ -35,6 +35,7 @@ private:
 	void CreateMatrices();
 	void CreateBasicGameObjects();
 	void CreateBasicGeometry();
+	void CreateModels();
 
 	// Wrappers for DirectX shaders to provide simplified functionality
 	SimpleVertexShader* vertexShader;
@@ -53,6 +54,14 @@ private:
 	Mesh* triangle;
 	Mesh* square;
 	Mesh* pentagon;
+	//Model Meshes
+	Mesh* cone;
+	Mesh* cube;
+	Mesh* cylinder;
+	Mesh* helix;
+	Mesh* sphere;
+	Mesh* torus;
+
 	Material* genericMat;	//Generic material for basic material test
 
 	GameObject* objArray[8];

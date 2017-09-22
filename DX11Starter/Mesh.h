@@ -10,7 +10,10 @@ public:
 		int numVertices,			//Tells Mesh how many Vertex objects are in mesh's vertices array
 		unsigned int* indicies,		//Holds array of indices for telling the order to draw vertices in
 		int numIndices,				//Tells Mesh how many indices are in Index Array
-		ID3D11Device* drawDevice);		//Reference to directX 11 Device need to create buffers
+		ID3D11Device* drawDevice);	//Reference to directX 11 Device need to create buffers
+	//Model Loading Constructor
+	Mesh(char* modelFile,			//Holds the file path to the model that needs to be loaded
+		ID3D11Device * drawDevice);	//Reference to directX 11 Device need to create buffers			
 	~Mesh(); //Releases DirectX Buffers
 
 	//Getters for private variables
