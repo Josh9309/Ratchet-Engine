@@ -127,8 +127,10 @@ void Camera::CalcProjection(unsigned int width, unsigned int height)
 
 void Camera::RotateCamera(float xAmount, float yAmount)
 {
+	//Scales pixel to radian ratio 100:1
 	float xScaled = xAmount / 100;
 	float yScaled = yAmount / 100;
+
 	rotation.x += xScaled * rotSpeed;
 	rotation.y += yScaled * rotSpeed ;
 

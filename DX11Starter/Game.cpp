@@ -44,14 +44,16 @@ Game::~Game()
 
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
-	delete vertexShader;
-	delete pixelShader;
 
 	//delete Meshes
 	delete triangle;
 	delete square;
 	delete pentagon;
 
+	//delete Materials
+	delete genericMat;
+
+	//delete Gameobjects
 	for (int i = 0; i < 8; i++) {
 		delete objArray[i];
 	}
@@ -75,11 +77,15 @@ void Game::Init()
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	//Create Material 
+	genericMat = new Material(vertexShader, pixelShader);
+
 	//Create Gameobjects
 	CreateBasicGameObjects();
 
+	//Creates game Camera
 	gameCamera = Camera(XMFLOAT3(0,0, -5.0f),XMFLOAT3(0,0,0), 1.5, 0.5);
-	gameCamera.CalcProjection(width, height);
+	gameCamera.CalcProjection(width, height);	//Makes sure projection matrix is calculated
 }
 
 // --------------------------------------------------------
@@ -146,7 +152,7 @@ void Game::CreateBasicGameObjects()
 
 	//make Triangle Game Objects
 	for (int i = 0; i < 3; i++) {
-		objArray[i] = new GameObject(triangle);
+		objArray[i] = new GameObject(triangle, genericMat);
 		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 		objArray[i]->GetTransform()->SetPosition(XMFLOAT3(-2.5f, 0.0f, 0.0f));
 		//GameObject tri(triangle);
@@ -155,14 +161,14 @@ void Game::CreateBasicGameObjects()
 
 	////Make Square GameObjects
 	for (int i = 3; i < 6; i++) {
-		objArray[i] = new GameObject(square);
+		objArray[i] = new GameObject(square, genericMat);
 		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 		objArray[i]->GetTransform()->SetPosition(XMFLOAT3(+2.7f, 0.0f, 0.0f));
 	}
 
 	////Make Pentagon GameObjects
 	for (int i = 6; i < 8; i++) {
-		objArray[i] = new GameObject(pentagon);
+		objArray[i] = new GameObject(pentagon, genericMat);
 	}
 
 }
@@ -180,6 +186,7 @@ void Game::CreateBasicGeometry()
 	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 	XMFLOAT4 purple = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
 	XMFLOAT4 yellow = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
+
 	//Set up Triangle Mesh
 	//Set up vertices for Triangle
 	Vertex triangleVertices[] =
@@ -285,29 +292,10 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for (int i = 0; i < 8; i++) {
 		
-		// Send data to shader variables
-		//  - Do this ONCE PER OBJECT you're drawing
-		//  - This is actually a complex process of copying data to a local buffer
-		//    and then copying that entire buffer to the GPU.  
-		//  - The "SimpleShader" class handles all of that for you.
-		//Pass World Matrix to shader
-		vertexShader->SetMatrix4x4("world", objArray[i]->GetWorldMatrix());
-		vertexShader->SetMatrix4x4("view", gameCamera.GetViewMatrix());
-		vertexShader->SetMatrix4x4("projection", gameCamera.GetProjectionMatrix());
-
-		// Once you've set all of the data you care to change for
-		// the next draw call, you need to actually send it to the GPU
-		//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
-		vertexShader->CopyAllBufferData();
-
-		// Set the vertex and pixel shaders to use for the next Draw() command
-		//  - These don't technically need to be set every frame...YET
-		//  - Once you start applying different shaders to different objects,
-		//    you'll need to swap the current shaders before each draw
-		vertexShader->SetShader();
-		pixelShader->SetShader();
 		
-		objArray[i]->Render(context);
+		objArray[i]->SetupMaterial(gameCamera.GetViewMatrix(), gameCamera.GetProjectionMatrix()); //sets up matrices in vshader and sets shaders to active
+		
+		objArray[i]->Render(context); //renders object
 	}
 
 	// Present the back buffer to the user
@@ -327,7 +315,7 @@ void Game::Draw(float deltaTime, float totalTime)
 void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
-	freeLookEnabled = true;
+	freeLookEnabled = true; //allows camera rotation with mouse
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

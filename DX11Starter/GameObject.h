@@ -3,12 +3,13 @@
 #include <DirectXMath.h>
 #include "Transform.h" 
 #include "Mesh.h"
+#include "Material.h"
 
 class GameObject
 {
 public:
 	GameObject();
-	GameObject(Mesh* mesh);
+	GameObject(Mesh* mesh, Material* mat);
 	~GameObject();
 
 	//Properties for worldMatrix
@@ -28,10 +29,12 @@ public:
 
 	void CalcWorldMatrix();
 
+	void SetupMaterial(DirectX::XMFLOAT4X4 viewMatrix, DirectX::XMFLOAT4X4 projMatrix);
+
 private:
 	Transform* transform; //transform class component that holds the contains the position, rotation, scale
 	DirectX::XMFLOAT4X4 worldMatrix;
 	Mesh* objMesh; //holds the Gameobjects mesh
-
+	Material* material;
 };
 

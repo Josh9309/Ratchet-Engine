@@ -6,6 +6,7 @@
 #include "GameObject.h"
 #include "Camera.h"
 #include <DirectXMath.h>
+#include "Material.h"
 
 class Game 
 	: public DXCore
@@ -52,6 +53,7 @@ private:
 	Mesh* triangle;
 	Mesh* square;
 	Mesh* pentagon;
+	Material* genericMat;	//Generic material for basic material test
 
 	GameObject* objArray[8];
 

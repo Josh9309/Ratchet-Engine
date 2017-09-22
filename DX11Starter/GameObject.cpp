@@ -13,9 +13,10 @@ GameObject::GameObject()
 	XMStoreFloat4x4(&worldMatrix, identity);
 
 	objMesh = nullptr; //sets obj Mesh null
+	material = nullptr;
 }
 
-GameObject::GameObject(Mesh * mesh)
+GameObject::GameObject(Mesh * mesh, Material* mat)
 {
 	
 	transform = new Transform();	//creates the transform component for object
@@ -27,6 +28,7 @@ GameObject::GameObject(Mesh * mesh)
 
 	//set gameobject's mesh
 	objMesh = mesh;
+	material = mat;
 }
 
 GameObject::~GameObject()
@@ -110,4 +112,33 @@ void GameObject::CalcWorldMatrix()
 
 	XMMATRIX world = scale* rot * trans;
 	XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(world));
+}
+
+/*sets up world, view, and projection matrices and sends data to buffer. 
+* Then sets the vertexShader and pixelshader to active
+*/
+void GameObject::SetupMaterial(DirectX::XMFLOAT4X4 viewMatrix, DirectX::XMFLOAT4X4 projMatrix)
+{
+	// Send data to shader variables
+	//  - Do this ONCE PER OBJECT you're drawing
+	//  - This is actually a complex process of copying data to a local buffer
+	//    and then copying that entire buffer to the GPU.  
+	//  - The "SimpleShader" class handles all of that for you.
+	//Pass World Matrix to shader
+	material->GetVShader()->SetMatrix4x4("world", worldMatrix);
+	material->GetVShader()->SetMatrix4x4("view", viewMatrix);
+	material->GetVShader()->SetMatrix4x4("projection", projMatrix);
+
+	// Once you've set all of the data you care to change for
+	// the next draw call, you need to actually send it to the GPU
+	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
+	//Copy all Vertex shader data
+	material->GetVShader()->CopyAllBufferData();
+
+	// Set the vertex and pixel shaders to use for the next Draw() command
+	//  - These don't technically need to be set every frame...YET
+	//  - Once you start applying different shaders to different objects,
+	//    you'll need to swap the current shaders before each draw
+	material->GetVShader()->SetShader();
+	material->GetPShader()->SetShader();
 }
