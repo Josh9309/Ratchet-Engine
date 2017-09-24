@@ -95,7 +95,7 @@ void Game::Init()
 
 	//Create directional Light
 	directLight = { XMFLOAT4(0.1,0.1,0.1,1.0), XMFLOAT4(0,0,1,1), XMFLOAT3(1,-1,0) };
-
+	redLight = { XMFLOAT4(0.1,0.1,0.1,1.0), XMFLOAT4(1,0,0,1), XMFLOAT3(-1,1,0) };
 }
 
 // --------------------------------------------------------
@@ -322,6 +322,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		objArray[i]->GetMaterial()->GetPShader()->SetData(
 			"light",	//Name of variable in shader
 			&directLight,
+			sizeof(DirectionalLight));
+		objArray[i]->GetMaterial()->GetPShader()->SetData(
+			"light2",	//Name of variable in shader
+			&redLight,
 			sizeof(DirectionalLight));
 		objArray[i]->GetMaterial()->GetPShader()->CopyAllBufferData();
 		objArray[i]->GetMaterial()->GetPShader()->SetShader();

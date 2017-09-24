@@ -27,8 +27,12 @@ struct DirectionalLight
 cbuffer lightData : register(b0)
 {
 	DirectionalLight light;
+	DirectionalLight light2;
 };
 
+//Calculate DirectionalLight Method 
+//Preforms all the directional light calculations and returns the surfaceColor
+float4 CalcDirectionalLight(DirectionalLight directLight, float3 normal);
 
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
@@ -41,14 +45,21 @@ cbuffer lightData : register(b0)
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
+	//calculates the lighting and returns the result
+	float4 surfaceColor = CalcDirectionalLight(light, input.normal);
+	float4 surfaceColor2 = CalcDirectionalLight(light2, input.normal);
+	return surfaceColor + surfaceColor2;
+}
+
+float4 CalcDirectionalLight(DirectionalLight directLight, float3 normal) {
 	//Calculate the normalized direction to light by normalizing the opposite of the light direction
-	float3 dirToLight = normalize(-light.direction); //Normalized direction to the light
+	float3 dirToLight = normalize(-directLight.direction); //Normalized direction to the light
 
 	//Calculate the light amount using N dot L
-	float lightAmount = saturate(dot(input.normal, dirToLight));
-	input.normal = normalize(input.normal);
+	float lightAmount = saturate(dot(normal, dirToLight));
+	normal = normalize(normal);
 
 	//Return final surface color based on light amount, diffuse color and ambient color
-	float4 surfaceColor = (light.diffuseColor * lightAmount) + light.ambientColor;
+	float4 surfaceColor = (directLight.diffuseColor * lightAmount) + directLight.ambientColor;
 	return surfaceColor;
 }

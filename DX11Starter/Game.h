@@ -70,6 +70,7 @@ private:
 	Camera gameCamera;
 
 	DirectionalLight directLight;
+	DirectionalLight redLight;
 
 	bool freeLookEnabled = false;	//tells whether freelook is enabled 
 };
