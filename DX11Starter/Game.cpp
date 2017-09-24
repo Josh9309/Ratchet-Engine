@@ -323,6 +323,8 @@ void Game::Draw(float deltaTime, float totalTime)
 			"light",	//Name of variable in shader
 			&directLight,
 			sizeof(DirectionalLight));
+		objArray[i]->GetMaterial()->GetPShader()->CopyAllBufferData();
+		objArray[i]->GetMaterial()->GetPShader()->SetShader();
 		objArray[i]->Render(context); //renders object
 	}
 
