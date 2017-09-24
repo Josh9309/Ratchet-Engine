@@ -17,6 +17,7 @@ public:
 	void SetWorldMatrix(DirectX::XMFLOAT4X4 matrix);
 
 	Mesh* GetMesh();
+	Material* GetMaterial();
 	Transform* GetTransform();
 
 	//Transform Methods

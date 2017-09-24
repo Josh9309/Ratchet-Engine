@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include <DirectXMath.h>
 #include "Material.h"
+#include "Light.h"
 
 class Game 
 	: public DXCore
@@ -35,6 +36,7 @@ private:
 	void CreateMatrices();
 	void CreateBasicGameObjects();
 	void CreateBasicGeometry();
+	void CreateModels();
 
 	// Wrappers for DirectX shaders to provide simplified functionality
 	SimpleVertexShader* vertexShader;
@@ -53,12 +55,23 @@ private:
 	Mesh* triangle;
 	Mesh* square;
 	Mesh* pentagon;
+	//Model Meshes
+	Mesh* cone;
+	Mesh* cube;
+	Mesh* cylinder;
+	Mesh* helix;
+	Mesh* sphere;
+	Mesh* torus;
+
 	Material* genericMat;	//Generic material for basic material test
 
 	GameObject* objArray[8];
 
 	Camera gameCamera;
 
-	bool freeLookEnabled = false;
+	DirectionalLight directLight;
+	DirectionalLight redLight;
+
+	bool freeLookEnabled = false;	//tells whether freelook is enabled 
 };
 

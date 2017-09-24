@@ -12,8 +12,27 @@ struct VertexToPixel
 	//  |    |                |
 	//  v    v                v
 	float4 position		: SV_POSITION;
-	float4 color		: COLOR;
+	float3 normal		: NORMAL;
 };
+
+/*This struct represents the data epected in a directional light
+*/
+struct DirectionalLight
+{
+	float4 ambientColor;
+	float4 diffuseColor;
+	float3 direction;
+};
+
+cbuffer lightData : register(b0)
+{
+	DirectionalLight light;
+	DirectionalLight light2;
+};
+
+//Calculate DirectionalLight Method 
+//Preforms all the directional light calculations and returns the surfaceColor
+float4 CalcDirectionalLight(DirectionalLight directLight, float3 normal);
 
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
@@ -26,9 +45,21 @@ struct VertexToPixel
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-	// Just return the input color
-	// - This color (like most values passing through the rasterizer) is 
-	//   interpolated for each pixel between the corresponding vertices 
-	//   of the triangle we're rendering
-	return input.color;
+	//calculates the lighting and returns the result
+	float4 surfaceColor = CalcDirectionalLight(light, input.normal);
+	float4 surfaceColor2 = CalcDirectionalLight(light2, input.normal);
+	return surfaceColor + surfaceColor2;
+}
+
+float4 CalcDirectionalLight(DirectionalLight directLight, float3 normal) {
+	//Calculate the normalized direction to light by normalizing the opposite of the light direction
+	float3 dirToLight = normalize(-directLight.direction); //Normalized direction to the light
+
+	//Calculate the light amount using N dot L
+	float lightAmount = saturate(dot(normal, dirToLight));
+	normal = normalize(normal);
+
+	//Return final surface color based on light amount, diffuse color and ambient color
+	float4 surfaceColor = (directLight.diffuseColor * lightAmount) + directLight.ambientColor;
+	return surfaceColor;
 }

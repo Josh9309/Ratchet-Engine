@@ -49,6 +49,11 @@ Mesh * GameObject::GetMesh()
 	return objMesh;
 }
 
+Material * GameObject::GetMaterial()
+{
+	return material;
+}
+
 Transform * GameObject::GetTransform()
 {
 	return transform;
