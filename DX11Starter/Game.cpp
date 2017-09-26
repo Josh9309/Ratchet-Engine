@@ -94,8 +94,8 @@ void Game::Init()
 	gameCamera.CalcProjection(width, height);	//Makes sure projection matrix is calculated
 
 	//Create directional Light
-	directLight = { XMFLOAT4(0.1,0.1,0.1,1.0), XMFLOAT4(0,0,1,1), XMFLOAT3(1,-1,0) };
-	redLight = { XMFLOAT4(0.1,0.1,0.1,1.0), XMFLOAT4(1,0,0,1), XMFLOAT3(-1,1,0) };
+	directLight = { XMFLOAT4(0.1f,0.1f,0.1f,1.0f), XMFLOAT4(0,0,1,1), XMFLOAT3(1,-1,0) };
+	redLight = { XMFLOAT4(0.1f,0.1f,0.1f,1.0f), XMFLOAT4(1,0,0,1), XMFLOAT3(-1,1,0) };
 }
 
 // --------------------------------------------------------
