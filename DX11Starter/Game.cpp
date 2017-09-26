@@ -55,6 +55,7 @@ Game::~Game()
 	delete helix;
 	delete sphere;
 	delete torus;
+	delete ratchet;
 
 	//delete Materials
 	delete genericMat;
@@ -255,9 +256,10 @@ void Game::CreateModels()
 	helix = new Mesh("../../DX11Starter/Assets/Models/helix.obj", device);
 	sphere = new Mesh("../../DX11Starter/Assets/Models/sphere.obj", device);
 	torus = new Mesh("../../DX11Starter/Assets/Models/torus.obj", device);
-
+	ratchet = new Mesh("../../DX11Starter/Assets/Models/Ratchet.obj", device);
 	for (int i = 0; i < 8; i++) {
-		objArray[i] = new GameObject(torus, genericMat);
+		objArray[i] = new GameObject(ratchet, genericMat);
+		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.1f, 0.1f, 0.1f));
 	}
 
 }
@@ -287,14 +289,14 @@ void Game::Update(float deltaTime, float totalTime)
 
 	gameCamera.Update(deltaTime);
 	//objArray[2]->GetTransform()->SetPosition(XMFLOAT3(-2.0f, 0, 0));
-	objArray[0]->Move(XMFLOAT3(0, -.1f*deltaTime, 0));
-	objArray[1]->Move(XMFLOAT3(0, .1f*deltaTime, 0));
-	objArray[2]->Rotate(XMFLOAT3(0, 0, .5f*deltaTime));
-	objArray[3]->Move(XMFLOAT3(0, -0.1f*deltaTime, 0));
-	objArray[4]->Move(XMFLOAT3(0, 0.1f*deltaTime, 0));
-	objArray[5]->Rotate(XMFLOAT3(0, 0, -0.5f*deltaTime));
-	objArray[7]->Scale(XMFLOAT3(.01f*deltaTime, 0.01f*deltaTime, 0.01f*deltaTime));
-	objArray[6]->Rotate(XMFLOAT3(0.50f*deltaTime, .50f*deltaTime, 0.0f*deltaTime)); //rotates pentagon Hopefully
+	//objArray[0]->Move(XMFLOAT3(0, -.1f*deltaTime, 0));
+	//objArray[1]->Move(XMFLOAT3(0, .1f*deltaTime, 0));
+	objArray[0]->Rotate(XMFLOAT3(0, .5f*deltaTime, 0));
+	//objArray[3]->Move(XMFLOAT3(0, -0.1f*deltaTime, 0));
+	//objArray[4]->Move(XMFLOAT3(0, 0.1f*deltaTime, 0));
+	//objArray[5]->Rotate(XMFLOAT3(0, 0, -0.5f*deltaTime));
+	//objArray[7]->Scale(XMFLOAT3(.01f*deltaTime, 0.01f*deltaTime, 0.01f*deltaTime));
+	//objArray[6]->Rotate(XMFLOAT3(0.50f*deltaTime, .50f*deltaTime, 0.0f*deltaTime)); //rotates pentagon Hopefully
 }
 
 // --------------------------------------------------------
@@ -315,7 +317,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 1; i++) {
 		
 		
 		objArray[i]->SetupMaterial(gameCamera.GetViewMatrix(), gameCamera.GetProjectionMatrix()); //sets up matrices in vshader and sets shaders to active

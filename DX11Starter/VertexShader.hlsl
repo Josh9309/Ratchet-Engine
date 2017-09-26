@@ -72,7 +72,7 @@ VertexToPixel main( VertexShaderInput input )
 	// The result is essentially the position (XY) of the vertex on our 2D 
 	// screen and the distance (Z) from the camera (the "depth" of the pixel)
 	output.position = mul(float4(input.position, 1.0f), worldViewProj);
-	output.normal = mul(input.normal, (float3x3)world);
+	output.normal = normalize(mul(input.normal, (float3x3)world)); //Normalize normals to readjust them after scaling. This prevents loss in lighting quality when scaling.
 	// Whatever we return will make its way through the pipeline to the
 	// next programmable stage we're using (the pixel shader for now)
 	return output;

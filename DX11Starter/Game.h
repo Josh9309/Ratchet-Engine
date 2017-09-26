@@ -62,6 +62,7 @@ private:
 	Mesh* helix;
 	Mesh* sphere;
 	Mesh* torus;
+	Mesh* ratchet;
 
 	Material* genericMat;	//Generic material for basic material test
 
