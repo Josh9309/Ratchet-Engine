@@ -8,10 +8,12 @@ Material::Material()
 	pixelShader = nullptr;
 }
 
-Material::Material(SimpleVertexShader* vShader, SimplePixelShader* pShader)
+Material::Material(SimpleVertexShader* vShader, SimplePixelShader* pShader, ID3D11ShaderResourceView* text, ID3D11SamplerState* sampler)
 {
 	vertexShader = vShader;
 	pixelShader = pShader;
+	texture = text;
+	samplerState = sampler;
 }
 
 
@@ -19,6 +21,8 @@ Material::~Material()
 {
 	delete vertexShader;
 	delete pixelShader;
+	texture->Release();
+	samplerState->Release();
 }
 
 SimpleVertexShader * Material::GetVShader()
@@ -29,4 +33,14 @@ SimpleVertexShader * Material::GetVShader()
 SimplePixelShader * Material::GetPShader()
 {
 	return pixelShader;
+}
+
+ID3D11ShaderResourceView * Material::GetTexture()
+{
+	return texture;
+}
+
+ID3D11SamplerState * Material::GetSampler()
+{
+	return samplerState;
 }

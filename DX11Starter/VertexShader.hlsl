@@ -42,6 +42,7 @@ struct VertexToPixel
 	//  |    |                |
 	//  v    v                v
 	float4 position		: SV_POSITION;	// XYZW position (System Value Position)
+	float2 uv			: TEXCOORD;		//UV Texture Cordinates
 	float3 normal		: NORMAL;
 };
 
@@ -75,5 +76,9 @@ VertexToPixel main( VertexShaderInput input )
 	output.normal = normalize(mul(input.normal, (float3x3)world)); //Normalize normals to readjust them after scaling. This prevents loss in lighting quality when scaling.
 	// Whatever we return will make its way through the pipeline to the
 	// next programmable stage we're using (the pixel shader for now)
+
+	//pass UVs to pixel shader
+	output.uv = input.uv;
+
 	return output;
 }

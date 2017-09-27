@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Vertex.h"
+#include "WICTextureLoader.h"
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -84,8 +85,32 @@ void Game::Init()
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	//create Texture
+	ID3D11ShaderResourceView* hazardTexture;
+	HRESULT tResult = CreateWICTextureFromFile(device, context, L"../../DX11Starter/Assets/Textures/HazardCrateTexture.jpg", 0, &hazardTexture);
+	if (tResult != S_OK) {
+		printf("Hazard Texture is could not be loaded");
+	}
+
+	//Create Sampler State
+	ID3D11SamplerState* sample;
+	D3D11_SAMPLER_DESC sampleDesc = {};
+	//Describes how to handle addresses outside 0-1 UV range
+	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	
+	sampleDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;	//Describes how to handle sampling between pixels
+	sampleDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	
+	HRESULT sampleResult = device->CreateSamplerState(&sampleDesc, &sample);
+	if (sampleResult != S_OK) {
+		printf("Sample State could not be created");
+	}
+
 	//Create Material 
-	genericMat = new Material(vertexShader, pixelShader);
+	genericMat = new Material(vertexShader, pixelShader, hazardTexture, sample);
+
 	CreateModels();
 	//Create Gameobjects
 	//CreateBasicGameObjects();
@@ -258,8 +283,8 @@ void Game::CreateModels()
 	torus = new Mesh("../../DX11Starter/Assets/Models/torus.obj", device);
 	ratchet = new Mesh("../../DX11Starter/Assets/Models/Ratchet.obj", device);
 	for (int i = 0; i < 8; i++) {
-		objArray[i] = new GameObject(ratchet, genericMat);
-		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.1f, 0.1f, 0.1f));
+		objArray[i] = new GameObject(cube, genericMat);
+		//objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.1f, 0.1f, 0.1f));
 	}
 
 }

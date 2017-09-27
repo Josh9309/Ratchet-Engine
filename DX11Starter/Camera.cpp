@@ -9,7 +9,9 @@ Camera::Camera()
 	forward = XMVectorZero();
 	rotation = XMFLOAT3(0, 0, 0);
 	speed = 1;
-
+	rotSpeed = 1;
+	originSpeed = speed;
+	doubleSpeed = speed * 2;
 	//Intialize View Matrix
 	//Direct X uses XMVectors to represent Quaternions
 	XMVECTOR viewQuaternion = XMQuaternionRotationRollPitchYaw(rotation.x, rotation.y, rotation.z); //calculates rotation quaternion based off rotation
@@ -33,6 +35,8 @@ Camera::Camera(DirectX::XMFLOAT3  pos, DirectX::XMFLOAT3 rot, float moveSpeed, f
 	forward = XMVectorZero();
 	rotation = rot;
 	speed = moveSpeed;
+	originSpeed = speed;
+	doubleSpeed = speed * 2;
 	rotSpeed = rotationSpeed;
 
 	//Intialize View Matrix
@@ -74,6 +78,14 @@ void Camera::Update(float deltaTime)
 	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(viewMat)); //stores matrix in to 4x4 XMFLOAT version
 
 	//KEYBOARD INPUT
+	if (GetAsyncKeyState(VK_LSHIFT) & 0x8000) 
+	{
+		speed = doubleSpeed;
+	}
+	else {
+		speed = originSpeed;
+	}
+
 	XMVECTOR normForward = XMVector3Normalize(forward);	//Normalize forward vector for movement
 	if(GetAsyncKeyState('W') & 0x8000) //The 0x8000 is necessacry because the function contains muliple pieces of info in a short value
 	{

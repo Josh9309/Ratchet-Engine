@@ -133,12 +133,15 @@ void GameObject::SetupMaterial(DirectX::XMFLOAT4X4 viewMatrix, DirectX::XMFLOAT4
 	material->GetVShader()->SetMatrix4x4("world", worldMatrix);
 	material->GetVShader()->SetMatrix4x4("view", viewMatrix);
 	material->GetVShader()->SetMatrix4x4("projection", projMatrix);
+	material->GetPShader()->SetShaderResourceView("diffuseTexture", material->GetTexture());
+	material->GetPShader()->SetSamplerState("basicSampler", material->GetSampler());
 
 	// Once you've set all of the data you care to change for
 	// the next draw call, you need to actually send it to the GPU
 	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
 	//Copy all Vertex shader data
 	material->GetVShader()->CopyAllBufferData();
+	material->GetPShader()->CopyAllBufferData();
 
 	// Set the vertex and pixel shaders to use for the next Draw() command
 	//  - These don't technically need to be set every frame...YET

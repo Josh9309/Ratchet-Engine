@@ -28,5 +28,7 @@ private:
 	DirectX::XMFLOAT4X4 viewMatrix;
 	DirectX::XMFLOAT4X4 projMatrix;
 	float speed;
+	float originSpeed;
+	float doubleSpeed;
 	float rotSpeed; //Camera rotation speed
 };
