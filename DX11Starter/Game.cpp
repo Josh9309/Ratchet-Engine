@@ -60,11 +60,15 @@ Game::~Game()
 
 	//delete Materials
 	delete genericMat;
+	delete stoneMat;
 
 	//delete Gameobjects
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 2; i++) {
 		delete objArray[i];
 	}
+
+	vertexShader.reset();
+	pixelShader.reset();
 }
 
 // --------------------------------------------------------
@@ -108,9 +112,37 @@ void Game::Init()
 		printf("Sample State could not be created");
 	}
 
-	//Create Material 
-	genericMat = new Material(vertexShader, pixelShader, hazardTexture, sample);
+	std::weak_ptr<SimpleVertexShader> vsWeak = vertexShader;
+	std::weak_ptr<SimplePixelShader> psWeak = pixelShader;
 
+	//Create Material 
+	genericMat = new Material(vsWeak.lock(), psWeak.lock(), hazardTexture, sample);
+
+	//create Texture
+	ID3D11ShaderResourceView* stoneTexture;
+	tResult = CreateWICTextureFromFile(device, context, L"../../DX11Starter/Assets/Textures/GreyStoneTexture.jpg", 0, &stoneTexture);
+	if (tResult != S_OK) {
+		printf("Stone Texture is could not be loaded");
+	}
+
+	//Create Sampler State
+	sample = nullptr;
+	sampleDesc = {};
+	//Describes how to handle addresses outside 0-1 UV range
+	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+	sampleDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;	//Describes how to handle sampling between pixels
+	sampleDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	sampleResult = device->CreateSamplerState(&sampleDesc, &sample);
+	if (sampleResult != S_OK) {
+		printf("Sample State could not be created");
+	}
+
+	stoneMat = new Material(vsWeak.lock(), psWeak.lock(), stoneTexture, sample);
+	
 	CreateModels();
 	//Create Gameobjects
 	//CreateBasicGameObjects();
@@ -132,10 +164,12 @@ void Game::Init()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	vertexShader = new SimpleVertexShader(device, context);
+	SimpleVertexShader* vShaderPtr = new SimpleVertexShader(device, context);
+	vertexShader = std::shared_ptr<SimpleVertexShader>(vShaderPtr);
 	vertexShader->LoadShaderFile(L"VertexShader.cso");
-
-	pixelShader = new SimplePixelShader(device, context);
+ 
+	SimplePixelShader* pShaderPtr = new SimplePixelShader(device, context);
+	pixelShader = std::shared_ptr<SimplePixelShader>(pShaderPtr);
 	pixelShader->LoadShaderFile(L"PixelShader.cso");
 }
 
@@ -282,10 +316,12 @@ void Game::CreateModels()
 	sphere = new Mesh("../../DX11Starter/Assets/Models/sphere.obj", device);
 	torus = new Mesh("../../DX11Starter/Assets/Models/torus.obj", device);
 	ratchet = new Mesh("../../DX11Starter/Assets/Models/Ratchet.obj", device);
-	for (int i = 0; i < 8; i++) {
-		objArray[i] = new GameObject(cube, genericMat);
-		//objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.1f, 0.1f, 0.1f));
-	}
+	
+	objArray[0] = new GameObject(cube, genericMat);
+	objArray[0]->GetTransform()->SetPosition(-1, 0, 0);
+
+	objArray[1] = new GameObject(sphere, stoneMat);
+	objArray[1]->GetTransform()->SetPosition(1, 0, 0);
 
 }
 
@@ -313,15 +349,9 @@ void Game::Update(float deltaTime, float totalTime)
 		Quit();
 
 	gameCamera.Update(deltaTime);
-	//objArray[2]->GetTransform()->SetPosition(XMFLOAT3(-2.0f, 0, 0));
-	//objArray[0]->Move(XMFLOAT3(0, -.1f*deltaTime, 0));
-	//objArray[1]->Move(XMFLOAT3(0, .1f*deltaTime, 0));
+
 	objArray[0]->Rotate(XMFLOAT3(0, .5f*deltaTime, 0));
-	//objArray[3]->Move(XMFLOAT3(0, -0.1f*deltaTime, 0));
-	//objArray[4]->Move(XMFLOAT3(0, 0.1f*deltaTime, 0));
-	//objArray[5]->Rotate(XMFLOAT3(0, 0, -0.5f*deltaTime));
-	//objArray[7]->Scale(XMFLOAT3(.01f*deltaTime, 0.01f*deltaTime, 0.01f*deltaTime));
-	//objArray[6]->Rotate(XMFLOAT3(0.50f*deltaTime, .50f*deltaTime, 0.0f*deltaTime)); //rotates pentagon Hopefully
+	objArray[1]->Rotate(XMFLOAT3(0, .5f*deltaTime, 0));
 }
 
 // --------------------------------------------------------
@@ -342,20 +372,20 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 2; i++) {
 		
 		
 		objArray[i]->SetupMaterial(gameCamera.GetViewMatrix(), gameCamera.GetProjectionMatrix()); //sets up matrices in vshader and sets shaders to active
-		objArray[i]->GetMaterial()->GetPShader()->SetData(
+		objArray[i]->GetMaterial()->GetPShader().lock()->SetData(
 			"light",	//Name of variable in shader
 			&directLight,
 			sizeof(DirectionalLight));
-		objArray[i]->GetMaterial()->GetPShader()->SetData(
+		objArray[i]->GetMaterial()->GetPShader().lock()->SetData(
 			"light2",	//Name of variable in shader
 			&redLight,
 			sizeof(DirectionalLight));
-		objArray[i]->GetMaterial()->GetPShader()->CopyAllBufferData();
-		objArray[i]->GetMaterial()->GetPShader()->SetShader();
+		objArray[i]->GetMaterial()->GetPShader().lock()->CopyAllBufferData();
+		objArray[i]->GetMaterial()->GetPShader().lock()->SetShader();
 		objArray[i]->Render(context); //renders object
 	}
 

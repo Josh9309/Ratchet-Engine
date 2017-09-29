@@ -8,9 +8,9 @@
 #include <DirectXMath.h>
 #include "Material.h"
 #include "Light.h"
+#include <memory>
 
-class Game 
-	: public DXCore
+class Game 	: public DXCore
 {
 
 public:
@@ -39,8 +39,8 @@ private:
 	void CreateModels();
 
 	// Wrappers for DirectX shaders to provide simplified functionality
-	SimpleVertexShader* vertexShader;
-	SimplePixelShader* pixelShader;
+	std::shared_ptr<SimpleVertexShader> vertexShader;
+	std::shared_ptr<SimplePixelShader> pixelShader;
 
 	// The matrices to go from model space to screen space
 	DirectX::XMFLOAT4X4 worldMatrix;
@@ -65,8 +65,9 @@ private:
 	Mesh* ratchet;
 
 	Material* genericMat;	//Generic material for basic material test
+	Material* stoneMat;
 
-	GameObject* objArray[8];
+	GameObject* objArray[2];
 
 	Camera gameCamera;
 
