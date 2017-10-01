@@ -8,10 +8,10 @@ Material::Material()
 	pixelShader = nullptr;
 }
 
-Material::Material(std::weak_ptr<SimpleVertexShader> vShader, std::weak_ptr<SimplePixelShader> pShader, ID3D11ShaderResourceView* text, ID3D11SamplerState* sampler)
+Material::Material(SimpleVertexShader* vShader, SimplePixelShader* pShader, ID3D11ShaderResourceView* text, ID3D11SamplerState* sampler)
 {
-	vertexShader = vShader.lock();
-	pixelShader = pShader.lock();
+	vertexShader = vShader;
+	pixelShader = pShader;
 	texture = text;
 	samplerState = sampler;
 }
@@ -19,22 +19,18 @@ Material::Material(std::weak_ptr<SimpleVertexShader> vShader, std::weak_ptr<Simp
 
 Material::~Material()
 {
-	vertexShader.reset();
-	pixelShader.reset();
-	texture->Release();
-	samplerState->Release();
+	vertexShader;
+	pixelShader;
 }
 
-std::weak_ptr<SimpleVertexShader> Material::GetVShader()
+SimpleVertexShader* Material::GetVShader()
 {
-	std::weak_ptr<SimpleVertexShader> vShader = vertexShader;
-	return vShader;
+	return vertexShader;
 }
 
-std::weak_ptr<SimplePixelShader> Material::GetPShader()
+SimplePixelShader* Material::GetPShader()
 {
-	std::weak_ptr<SimplePixelShader> pShader = pixelShader;
-	return pShader;
+	return pixelShader;
 }
 
 ID3D11ShaderResourceView * Material::GetTexture()

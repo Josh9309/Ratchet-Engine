@@ -21,9 +21,6 @@ Game::Game(HINSTANCE hInstance)
 		720,			   // Height of the window's client area
 		true)			   // Show extra stats (fps) in title bar?
 {
-	// Initialize fields
-	vertexShader = 0;
-	pixelShader = 0;
 
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
@@ -46,29 +43,11 @@ Game::~Game()
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
 
-	//delete Meshes
-	delete triangle;
-	delete square;
-	delete pentagon;
-	delete cone;
-	delete cube;
-	delete cylinder;
-	delete helix;
-	delete sphere;
-	delete torus;
-	delete ratchet;
-
-	//delete Materials
-	delete genericMat;
-	delete stoneMat;
-
 	//delete Gameobjects
 	for (int i = 0; i < 2; i++) {
 		delete objArray[i];
 	}
 
-	vertexShader.reset();
-	pixelShader.reset();
 }
 
 // --------------------------------------------------------
@@ -77,6 +56,9 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
+	//Initialize Asset Manager
+	assetManager = AssetManager();
+
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
@@ -95,6 +77,7 @@ void Game::Init()
 	if (tResult != S_OK) {
 		printf("Hazard Texture is could not be loaded");
 	}
+	assetManager.ImportTexture("HazardTexture", hazardTexture);
 
 	//Create Sampler State
 	ID3D11SamplerState* sample;
@@ -112,11 +95,11 @@ void Game::Init()
 		printf("Sample State could not be created");
 	}
 
-	std::weak_ptr<SimpleVertexShader> vsWeak = vertexShader;
-	std::weak_ptr<SimplePixelShader> psWeak = pixelShader;
+	assetManager.ImportSampler("BasicSampler", sample);
 
 	//Create Material 
-	genericMat = new Material(vsWeak.lock(), psWeak.lock(), hazardTexture, sample);
+	Material* genericMat = new Material(assetManager.GetVShader("BasicVShader"), assetManager.GetPShader("BasicPShader"), assetManager.GetTexture("HazardTexture") , assetManager.GetSampler("BasicSampler") );
+	assetManager.ImportMaterial("HazardCrateMat", genericMat);
 
 	//create Texture
 	ID3D11ShaderResourceView* stoneTexture;
@@ -125,24 +108,11 @@ void Game::Init()
 		printf("Stone Texture is could not be loaded");
 	}
 
-	//Create Sampler State
-	sample = nullptr;
-	sampleDesc = {};
-	//Describes how to handle addresses outside 0-1 UV range
-	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	assetManager.ImportTexture("Stone", stoneTexture);
 
-	sampleDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;	//Describes how to handle sampling between pixels
-	sampleDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	Material* stoneMat = new Material(assetManager.GetVShader("BasicVShader"), assetManager.GetPShader("BasicPShader"), assetManager.GetTexture("Stone"), assetManager.GetSampler("BasicSampler"));
+	assetManager.ImportMaterial("StoneMat", stoneMat);
 
-	sampleResult = device->CreateSamplerState(&sampleDesc, &sample);
-	if (sampleResult != S_OK) {
-		printf("Sample State could not be created");
-	}
-
-	stoneMat = new Material(vsWeak.lock(), psWeak.lock(), stoneTexture, sample);
-	
 	CreateModels();
 	//Create Gameobjects
 	//CreateBasicGameObjects();
@@ -164,13 +134,15 @@ void Game::Init()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	SimpleVertexShader* vShaderPtr = new SimpleVertexShader(device, context);
-	vertexShader = std::shared_ptr<SimpleVertexShader>(vShaderPtr);
+	SimpleVertexShader* vertexShader = new SimpleVertexShader(device, context);
 	vertexShader->LoadShaderFile(L"VertexShader.cso");
- 
-	SimplePixelShader* pShaderPtr = new SimplePixelShader(device, context);
-	pixelShader = std::shared_ptr<SimplePixelShader>(pShaderPtr);
+
+	SimplePixelShader* pixelShader = new SimplePixelShader(device, context);
 	pixelShader->LoadShaderFile(L"PixelShader.cso");
+
+	//Store Vertex and Pixel Shaders into the AssetManager
+	assetManager.ImportVShader("BasicVShader", vertexShader);
+	assetManager.ImportPShader("BasicPShader", pixelShader);
 }
 
 
@@ -222,7 +194,7 @@ void Game::CreateBasicGameObjects()
 
 	//make Triangle Game Objects
 	for (int i = 0; i < 3; i++) {
-		objArray[i] = new GameObject(triangle, genericMat);
+		objArray[i] = new GameObject(assetManager.GetMesh("Triangle"), assetManager.GetMaterial("StoneMat"));
 		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 		objArray[i]->GetTransform()->SetPosition(XMFLOAT3(-2.5f, 0.0f, 0.0f));
 		//GameObject tri(triangle);
@@ -231,14 +203,14 @@ void Game::CreateBasicGameObjects()
 
 	////Make Square GameObjects
 	for (int i = 3; i < 6; i++) {
-		objArray[i] = new GameObject(square, genericMat);
+		objArray[i] = new GameObject(assetManager.GetMesh("Square"), assetManager.GetMaterial("StoneMat"));
 		objArray[i]->GetTransform()->SetScale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 		objArray[i]->GetTransform()->SetPosition(XMFLOAT3(+2.7f, 0.0f, 0.0f));
 	}
 
 	////Make Pentagon GameObjects
 	for (int i = 6; i < 8; i++) {
-		objArray[i] = new GameObject(pentagon, genericMat);
+		objArray[i] = new GameObject(assetManager.GetMesh("Pentagon"), assetManager.GetMaterial("StoneMat"));
 	}
 
 }
@@ -269,7 +241,7 @@ void Game::CreateBasicGeometry()
 	//Set up Indices for Triangle
 	unsigned int triangleIndices[] = { 0, 1, 2 };
 
-	triangle = new Mesh(triangleVertices, 3, triangleIndices, 3, device);
+	assetManager.ImportMesh("Triangle", new Mesh(triangleVertices, 3, triangleIndices, 3, device));
 
 	//Set up Square mesh
 	//Setup vertices for square
@@ -284,7 +256,7 @@ void Game::CreateBasicGeometry()
 	//setup indices for square
 	unsigned int squareIndices[] = { 0,1,2,0,2,3 };
 
-	square = new Mesh(squareVertices, 4, squareIndices, 6, device);
+	assetManager.ImportMesh("Square", new Mesh(squareVertices, 4, squareIndices, 6, device));
 
 	//Setup Pentagon Mesh
 	//Setup Pentagon Vertices
@@ -304,23 +276,23 @@ void Game::CreateBasicGeometry()
 		4,2,3,
 	};
 
-	pentagon = new Mesh(pentagonVertices, 5, pentaIndices, 9, device);
+	assetManager.ImportMesh("Pentagon", new Mesh(pentagonVertices, 5, pentaIndices, 9, device));
 }
 
 void Game::CreateModels()
 {
-	cone = new Mesh("../../DX11Starter/Assets/Models/cone.obj", device);
-	cube = new Mesh("../../DX11Starter/Assets/Models/cube.obj", device);
-	cylinder = new Mesh("../../DX11Starter/Assets/Models/cylinder.obj", device);
-	helix = new Mesh("../../DX11Starter/Assets/Models/helix.obj", device);
-	sphere = new Mesh("../../DX11Starter/Assets/Models/sphere.obj", device);
-	torus = new Mesh("../../DX11Starter/Assets/Models/torus.obj", device);
-	ratchet = new Mesh("../../DX11Starter/Assets/Models/Ratchet.obj", device);
+	assetManager.ImportMesh("Cone",new Mesh("../../DX11Starter/Assets/Models/cone.obj", device));
+	assetManager.ImportMesh("Cube",new Mesh("../../DX11Starter/Assets/Models/cube.obj", device));
+	assetManager.ImportMesh("Cylinder", new Mesh("../../DX11Starter/Assets/Models/cylinder.obj", device));
+	assetManager.ImportMesh("Helix", new Mesh("../../DX11Starter/Assets/Models/helix.obj", device));
+	assetManager.ImportMesh("Sphere", new Mesh("../../DX11Starter/Assets/Models/sphere.obj", device));
+	assetManager.ImportMesh("Torus", new Mesh("../../DX11Starter/Assets/Models/torus.obj", device));
+	assetManager.ImportMesh("Ratchet", new Mesh("../../DX11Starter/Assets/Models/Ratchet.obj", device));
 	
-	objArray[0] = new GameObject(cube, genericMat);
+	objArray[0] = new GameObject(assetManager.GetMesh("Cube"), assetManager.GetMaterial("HazardCrateMat"));
 	objArray[0]->GetTransform()->SetPosition(-1, 0, 0);
 
-	objArray[1] = new GameObject(sphere, stoneMat);
+	objArray[1] = new GameObject(assetManager.GetMesh("Sphere"), assetManager.GetMaterial("StoneMat"));
 	objArray[1]->GetTransform()->SetPosition(1, 0, 0);
 
 }
@@ -376,16 +348,16 @@ void Game::Draw(float deltaTime, float totalTime)
 		
 		
 		objArray[i]->SetupMaterial(gameCamera.GetViewMatrix(), gameCamera.GetProjectionMatrix()); //sets up matrices in vshader and sets shaders to active
-		objArray[i]->GetMaterial()->GetPShader().lock()->SetData(
+		objArray[i]->GetMaterial()->GetPShader()->SetData(
 			"light",	//Name of variable in shader
 			&directLight,
 			sizeof(DirectionalLight));
-		objArray[i]->GetMaterial()->GetPShader().lock()->SetData(
+		objArray[i]->GetMaterial()->GetPShader()->SetData(
 			"light2",	//Name of variable in shader
 			&redLight,
 			sizeof(DirectionalLight));
-		objArray[i]->GetMaterial()->GetPShader().lock()->CopyAllBufferData();
-		objArray[i]->GetMaterial()->GetPShader().lock()->SetShader();
+		objArray[i]->GetMaterial()->GetPShader()->CopyAllBufferData();
+		objArray[i]->GetMaterial()->GetPShader()->SetShader();
 		objArray[i]->Render(context); //renders object
 	}
 
