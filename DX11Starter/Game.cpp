@@ -1,10 +1,12 @@
 #include "Game.h"
 #include "Vertex.h"
 #include "WICTextureLoader.h"
+#include "imgui_impl_dx11.h"
 
 // For the DirectX Math library
 using namespace DirectX;
 
+////////////////////////////////////////////////////////////////////////////////////////
 // --------------------------------------------------------
 // Constructor
 //
@@ -40,6 +42,8 @@ Game::~Game()
 	// Release any (and all!) DirectX objects
 	// we've made in the Game class
 
+	//Releases and shuts down imgui
+	ImGui_ImplDX11_Shutdown();
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
 
@@ -56,6 +60,9 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
+	//Initialize Dear ImGui
+	ImGui_ImplDX11_Init(hWnd, device, context);
+
 	//Initialize Asset Manager
 	assetManager = AssetManager();
 
@@ -124,6 +131,7 @@ void Game::Init()
 	//Create directional Light
 	directLight = { XMFLOAT4(0.1f,0.1f,0.1f,1.0f), XMFLOAT4(0,0,1,1), XMFLOAT3(1,-1,0) };
 	redLight = { XMFLOAT4(0.1f,0.1f,0.1f,1.0f), XMFLOAT4(1,0,0,1), XMFLOAT3(-1,1,0) };
+
 }
 
 // --------------------------------------------------------
@@ -316,6 +324,11 @@ void Game::OnResize()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	ImGuiIO& io = ImGui::GetIO();
+	io.DeltaTime = deltaTime;
+
+	ImGui_ImplDX11_NewFrame();
+
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
@@ -331,6 +344,7 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
+
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
 
@@ -361,6 +375,21 @@ void Game::Draw(float deltaTime, float totalTime)
 		objArray[i]->Render(context); //renders object
 	}
 
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	// 1. Show a simple window
+	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+	{
+		static float f = 0.0f;
+		ImGui::Text("Hello, world!");
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+		ImGui::ColorEdit3("clear color", (float*)&clear_color);
+		//if (ImGui::Button("Test Window")) show_test_window ^= 1;
+		//if (ImGui::Button("Another Window")) show_another_window ^= 1;
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	}
+
+	ImGui::Render();
+
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
 	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
@@ -377,6 +406,9 @@ void Game::Draw(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 {
+	ImGuiIO& io = ImGui::GetIO();
+	io.MouseDown[0] = true;
+	io.MouseDown[1] = true;
 	// Add any custom code here...
 	freeLookEnabled = true; //allows camera rotation with mouse
 
@@ -395,6 +427,10 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 {
+	ImGuiIO& io = ImGui::GetIO();
+	io.MouseDown[0] = false;
+	io.MouseDown[1] = false;
+
 	// Add any custom code here...
 	freeLookEnabled = false;
 
@@ -410,6 +446,8 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
+	ImGuiIO& io = ImGui::GetIO();
+	io.MousePos = ImVec2(x, y);
 	// Add any custom code here...
 	if (freeLookEnabled) //if free cam mode is turned on
 	{
@@ -433,3 +471,4 @@ void Game::OnMouseWheel(float wheelDelta, int x, int y)
 	// Add any custom code here...
 }
 #pragma endregion
+

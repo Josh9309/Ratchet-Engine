@@ -9,6 +9,12 @@
 #include "Material.h"
 #include "Light.h"
 #include <memory>
+#include "Imgui\imgui.h"
+#include "Imgui\imgui_internal.h"
+#include "Imgui\stb_textedit.h"
+#include "Imgui\stb_rect_pack.h"
+#include "Imgui\stb_truetype.h"
+#include "Imgui\imconfig.h"
 
 class Game 	: public DXCore
 {
@@ -30,7 +36,7 @@ public:
 	void OnMouseMove (WPARAM buttonState, int x, int y);
 	void OnMouseWheel(float wheelDelta,   int x, int y);
 private:
-
+	
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadShaders(); 
 	void CreateMatrices();
